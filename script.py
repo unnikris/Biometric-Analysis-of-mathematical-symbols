@@ -3,6 +3,7 @@ import cv2 as cv
 import os
 import pylab as pl
 import scipy.ndimage.filters as sc
+from itertools import izip
 # SCRIPT.PY ACTS AS THE MAIN FILE FRO \M WHERE THE DATASETS ARE LOADED IN AND IS
 #PASSED ON TO THROUGH THE PRE PROCESSING STAGES AND HENCE TO THE FEATURE EXTRACTION STAGE.
 #dataset = open("Dataset/data1.txt");
@@ -14,8 +15,8 @@ normz=[];
 def normalise(y):
     ##The normalise function nomalizes the value in range 0-1
             
-    minim = min(y);
-    maxim = max(y);
+    minim = np.amin(y);
+    maxim = np.amax(y);
     #print minim;
     #print maxim;
     norm_dataset = (y- minim) / (maxim -minim);
@@ -54,9 +55,9 @@ def preprocessing(x,y,filenames):
 for filenames in lo:
     
     params = "Dataset//"+ filenames;
-    det = "Details//" + filenames;                
+    
     print params;
-    print det;
+    
     dataset = np.genfromtxt(params);
      
     dataset_x = dataset[:,::2];
@@ -70,53 +71,72 @@ for filenames in lo:
                 temp[eqn].append(dataset_y[eqn][i])
     #print temp;
     normz=[];
-    
-    for i in range(len(temp)):
-        #normz.append([]);
-        fp = file("size//size_"+filenames,'a');
-        np.savetxt(fp,np.shape(temp[i]),'%d')
-        fp.close();
-        normdataset =np.zeros(np.size(temp[i]));  
-        temp_x = temp[i][::2];
-        temp_y = temp[i][1:np.size(dataset):2];
-        #print temp_x;
+    det = "Details//"+ filenames;
+   # siz= "size//size_"+ filenames;
+    Details = np.genfromtxt(det);
+    #Size    = np.genfromtxt(siz);
+    k=0;
+    index=0;
+    head=0;
+    i=0;    
+    for num in Details:
+        temp_x=[];
+        temp_y=[];
+        for j in range(int(num)):
+            #index=int(index+Size[k])
+            
+           #normz.append([]);
+##          fp = file("size//size_"+filenames,'a');
+##          np.savetxt(fp,np.shape(temp[i]),'%d')
+##          fp.close();
+            print "k" ,k;
+            temp_x.append( temp[k][::2]);
+            print "temp_x" ,temp_x
+            temp_y.append( temp[k][1:np.size(dataset):2]);
+            print "temp_y" , temp_y
+            k=k+1;
+        temp_x  = [val for sublist in temp_x for val in sublist]
+        temp_y  = [val for sublist in temp_y for val in sublist] 
+        print "size of temp_x",np.size(temp_x);
+        print "size of temp_y", np.size(temp_y);
+        print type(Details);
+        print filenames  
+        print type(num);
+        print "num",num
+        
+        normdataset =np.zeros(2*np.size(temp_x));
+        print "size of normdataset " , np.size(normdataset);
+##        dx=temp_x[head:(int(index/2))-1]
+##        dy=temp_y[head:(int(index/2))-1]
+##        head = index/2;
         norm_dataset_x=normalise(temp_x);
         norm_dataset_y=normalise(temp_y);
-        #print norm_dataset_x
+        print norm_dataset_x
         normdataset[::2] = norm_dataset_x;
         normdataset[1::2] = norm_dataset_y;
         normz.append(normdataset);
-    #
-    normz_array=(np.array(normz));
-    5
-    #normz0= normz_array.tolist();
-##    with open("Normalized//normalized_" + filenames, 'w') as f:
-##        for s in normz:
-##            s=str(s);
-##            if( s !="[]" and s!= and s!="]"):
-##                
-##                f.write(s)
-##                f.write('\n');
+        fp = file("size//size_"+filenames,'a');
+        np.savetxt(fp,np.shape(normdataset),'%d')
+        fp.close();
 
+    #   S
+    normz_array=(np.array(normz));
+    
+   
     
 ##################ONLY USE IF YOU NEED TO APPEND THE NORMALIZED FILE##########    
 ##    
-##    for i in range(len(normz_array)):
-##        f = file("Normalized//normalized_" + filenames,'a');
-##        np.savetxt( f, normz_array[i],'%f',' ','\t');
-##        f.close();
-##        space = open("Normalized//normalized_" + filenames,'a');
-##        space.write('\n')
-##        space.close();
+    for i in range(len(normz_array)):
+        f = file("Normalized//normalized_" + filenames,'a');
+        np.savetxt( f, normz_array[i],'%f',' ','\t');
+        f.close();
+        space = open("Normalized//normalized_" + filenames,'a');
+        space.write('\n')
+        space.close();
 
 
-        
-     #print normz[i];
-     #   print"________________________________________"
-    #
-
+   
     #plot the points , save as an image , pass over a smoothening function
     #preprocessing(norm_dataset_x,norm_dataset_y,filenames);
-#preprocessing(d1,d1_x,d1_y);
-                  
+        
 
